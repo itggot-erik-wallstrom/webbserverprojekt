@@ -1,0 +1,15 @@
+title Login
+
+Browser -> Web Server: HTTP post /login?name=user123&password=123
+Web Server -> main.rb: post('/login')
+main.rb -> main.rb: match route post('/login')
+main.rb -> UserManager: UserManager.find(name: "user123")
+UserManager -> DB: SELECT (id, password) FROM users WHERE name is "user123"
+DB -> UserManager: [[*id*, *password*]]
+UserManager -> UserManager: check_password(123, db_result[0])
+UserManager -> UserManager: new(db_result[0])
+UserManager -> main.rb: User
+main.rb -> main.rb: session[:id] = user.id
+main.rb -> main.rb: slim(:logged_in)
+main.rb -> Web Server: HTML
+Web Server -> Browser: HTTP response

@@ -1,0 +1,13 @@
+title Viewing user #2
+
+Browser -> Web Server: HTTP get /users/2
+Web Server -> main.rb: get('/users/2')
+main.rb -> main.rb: match route get('/users/:id')
+main.rb -> UserManager: UserManager.find(id: 2)
+UserManager -> DB: SELECT (name, registration_date) FROM users WHERE id is 2
+DB -> UserManager: [["User123", "2017-12-23"]]
+UserManager -> UserManager: new(db_result[0])
+UserManager -> main.rb: User
+main.rb -> main.rb: slim(:user)
+main.rb -> Web Server: HTML
+Web Server -> Browser: HTTP response
