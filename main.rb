@@ -10,7 +10,35 @@ class Main < Sinatra::Base
 	end
 
 	get '/' do
-		"Hello World"
+		redirect '/login'
+	end
+
+	get '/login' do
+		slim :login
+	end
+
+	post '/login' do
+		username = params['username']
+		password = params['password']
+
+		begin
+			user = @usermanager.get_with_name(username)
+			password_test = BCrypt::Password.new(user.password)
+
+			if(password_test == password)
+				session[:logged_in] = user.id
+				"You are now logged in"
+			else
+				"Wrong username or password"
+			end
+		rescue Exception => e
+			e.message
+		end
+	end
+
+	post '/logout' do
+		session.delete :logged_in
+		slim :logout
 	end
 
 	get '/users/new' do
@@ -35,10 +63,11 @@ class Main < Sinatra::Base
 	end
 
 	get '/users' do
-		result = ""
 		users = @usermanager.get_all
-		users.each do | user |
-			result += "#{user[0]}<br>"
+
+		result = ""
+		users.each do |user|
+			result += "#{user.id}: #{user.name} #{user.registration_date}<br>"
 		end
 
 		result
@@ -47,7 +76,7 @@ class Main < Sinatra::Base
 	get '/users/:id' do
 		begin 
 			user = @usermanager.get_with_id(params[:id])
-			user[0]
+			"#{user.id}: #{user.name} #{user.registration_date}"
 		rescue Exception => e
 			e.message
 		end
