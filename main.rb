@@ -1,4 +1,5 @@
 require_relative './usermanager.rb'
+require_relative './postmanager.rb'
 
 class Main < Sinatra::Base
 	enable :sessions
@@ -6,6 +7,7 @@ class Main < Sinatra::Base
 	def initialize
 		db = SQLite3::Database.open('db.sqlite')
 		@usermanager = UserManager.new(db)
+		@postmanager = PostManager.new(db)
 		super
 	end
 
@@ -27,7 +29,7 @@ class Main < Sinatra::Base
 
 			if(password_test == password)
 				session[:logged_in] = user.id
-				"You are now logged in"
+				slim :dashboard
 			else
 				"Wrong username or password"
 			end
@@ -42,7 +44,7 @@ class Main < Sinatra::Base
 	end
 
 	get '/users/new' do
-		slim :register
+		slim :new_user
 	end
 
 	post '/users' do
@@ -77,6 +79,53 @@ class Main < Sinatra::Base
 		begin 
 			user = @usermanager.get_with_id(params[:id])
 			"#{user.id}: #{user.name} #{user.registration_date}"
+		rescue Exception => e
+			e.message
+		end
+	end
+
+	get '/posts/new' do
+		slim :new_post
+	end
+
+	post '/posts' do
+		title = params['title']
+		text = params['text']
+
+		if(!session[:logged_in])
+			return "You must be logged in to submit a post"
+		else
+			creator = @usermanager.get_with_id(session[:logged_in]).id
+		end
+
+		begin
+			@postmanager.add(title, text, creator)
+			"Post creation was successful"
+		rescue Exception => e
+			e.message
+		end
+	end
+
+	get '/posts' do
+		posts = @postmanager.get_all
+
+		result = ""
+		posts.each do |post|
+			result += "#{post.id}: #{post.title} #{post.creation_date}" +
+				" #{post.modification_date}" + 
+				" #{@usermanager.get_with_id(post.creator).name} <br>"
+		end
+
+		result
+	end
+
+	get '/posts/:id' do
+		begin 
+			post = @postmanager.get_with_id(params[:id])
+			"#{post.id}: #{post.title} #{post.creation_date}" +
+				" #{post.modification_date}" + 
+				" #{@usermanager.get_with_id(post.creator).name} <br>" +
+				" #{post.text}"
 		rescue Exception => e
 			e.message
 		end
