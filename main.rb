@@ -31,7 +31,7 @@ class Main < Sinatra::Base
 				session[:logged_in] = user.id
 				slim :dashboard
 			else
-				"Wrong username or password"
+				'Wrong username or password'
 			end
 		rescue Exception => e
 			e.message
@@ -53,12 +53,12 @@ class Main < Sinatra::Base
 		confirm_password = params['confirm_password']
 
 		if(password != confirm_password)
-			return "Passwords do not match"
+			'Passwords do not match'
 		end
 
 		begin
 			@usermanager.add(username, password)
-			"User creation was successful"
+			'User creation was successful'
 		rescue Exception => e
 			e.message
 		end
@@ -66,8 +66,7 @@ class Main < Sinatra::Base
 
 	get '/users' do
 		users = @usermanager.get_all
-
-		result = ""
+		result = ''
 		users.each do |user|
 			result += "#{user.id}: #{user.name} #{user.registration_date}<br>"
 		end
@@ -93,23 +92,35 @@ class Main < Sinatra::Base
 		text = params['text']
 
 		if(!session[:logged_in])
-			return "You must be logged in to submit a post"
+			return 'You must be logged in to submit a post'
 		else
 			creator = @usermanager.get_with_id(session[:logged_in]).id
 		end
 
 		begin
 			@postmanager.add(title, text, creator)
-			"Post creation was successful"
+			'Post creation was successful'
 		rescue Exception => e
 			e.message
 		end
 	end
 
 	get '/posts' do
-		posts = @postmanager.get_all
+		if(params['creator_name'])
+			begin
+				posts = @postmanager.get_all_with_creator(
+					@usermanager.get_with_name(params['creator_name']).id
+				)
+			rescue Exception => e
+				return e.message
+			end
+		elsif(params['creator_id'])
+			posts = @postmanager.get_all_with_creator(params['creator_id'])
+		else
+			posts = @postmanager.get_all
+		end
 
-		result = ""
+		result = ''
 		posts.each do |post|
 			result += "#{post.id}: #{post.title} #{post.creation_date}" +
 				" #{post.modification_date}" + 

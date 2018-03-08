@@ -76,6 +76,24 @@ class PostManager
 		posts
 	end
 
+	def get_all_with_creator(id)
+		result = @db.execute('SELECT * FROM posts WHERE creator IS ?', id)
+		posts = []
+
+		result.each_with_index do |value, i|
+			posts[i] = Post.new(
+				value[0], 
+				value[3], 
+				value[4], 
+				value[5],
+				value[1],
+				value[2]
+			)
+		end
+
+		posts
+	end
+
 	def get_with_id(id)
 		result = find_with_id(id)
 		if(!result)
