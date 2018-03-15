@@ -1,0 +1,10 @@
+h1 Edit a post
+
+form action="/posts/#{@post.id}" method="post"
+	input id="hidden" type="hidden" name="_method" value="patch"
+	h2 ##{@post.id} #{@post.title}
+    textarea name="text" cols="40" rows="5" #{@post.text}
+    br
+    br
+    button type="submit" id="button" Submit
+	button onclick="javascript:history.back()" Go back

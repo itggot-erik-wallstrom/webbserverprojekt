@@ -29,12 +29,22 @@ class Main < Sinatra::Base
 
 			if(password_test == password)
 				session[:logged_in] = user.id
-				slim :dashboard
+				redirect '/dashboard'
 			else
-				'Wrong username or password'
+				@msg = 'Wrong username or password'
+				slim :error
 			end
 		rescue Exception => e
-			e.message
+			@msg = e.message
+			slim :error
+		end
+	end
+
+	get '/dashboard' do
+		if(session[:logged_in])
+			slim :dashboard
+		else
+			redirect '/login'
 		end
 	end
 
@@ -53,31 +63,28 @@ class Main < Sinatra::Base
 		confirm_password = params['confirm_password']
 
 		if(password != confirm_password)
-			'Passwords do not match'
+			@msg = 'Passwords do not match'
+			return slim :error
 		end
 
 		begin
 			@usermanager.add(username, password)
-			'User creation was successful'
+			'User creation was successful' #TODO: FIX LAYOUT
 		rescue Exception => e
-			e.message
+			@msg = e.message
+			slim :error
 		end
 	end
 
 	get '/users' do
-		users = @usermanager.get_all
-		result = ''
-		users.each do |user|
-			result += "#{user.id}: #{user.name} #{user.registration_date}<br>"
-		end
-
-		result
+		@users = @usermanager.get_all
+		slim :all_users
 	end
 
 	get '/users/:id' do
 		begin 
-			user = @usermanager.get_with_id(params[:id])
-			"#{user.id}: #{user.name} #{user.registration_date}"
+			@user = @usermanager.get_with_id(params[:id])
+			slim :one_user
 		rescue Exception => e
 			e.message
 		end
@@ -92,53 +99,65 @@ class Main < Sinatra::Base
 		text = params['text']
 
 		if(!session[:logged_in])
-			return 'You must be logged in to submit a post'
+			return redirect '/login'
 		else
 			creator = @usermanager.get_with_id(session[:logged_in]).id
 		end
 
 		begin
 			@postmanager.add(title, text, creator)
-			'Post creation was successful'
+			'Post creation was successful' #TODO: FIX LAYOUT
 		rescue Exception => e
-			e.message
+			@msg = e.message
+			slim :error
 		end
 	end
 
 	get '/posts' do
 		if(params['creator_name'])
 			begin
-				posts = @postmanager.get_all_with_creator(
+				@posts = @postmanager.get_all_with_creator(
 					@usermanager.get_with_name(params['creator_name']).id
 				)
 			rescue Exception => e
-				return e.message
+				@msg =  e.message
+				return slim :error
 			end
 		elsif(params['creator_id'])
-			posts = @postmanager.get_all_with_creator(params['creator_id'])
+			@posts = @postmanager.get_all_with_creator(params['creator_id'])
 		else
-			posts = @postmanager.get_all
+			@posts = @postmanager.get_all
 		end
 
-		result = ''
-		posts.each do |post|
-			result += "#{post.id}: #{post.title} #{post.creation_date}" +
-				" #{post.modification_date}" + 
-				" #{@usermanager.get_with_id(post.creator).name} <br>"
-		end
-
-		result
+		slim :all_posts
 	end
 
 	get '/posts/:id' do
 		begin 
-			post = @postmanager.get_with_id(params[:id])
-			"#{post.id}: #{post.title} #{post.creation_date}" +
-				" #{post.modification_date}" + 
-				" #{@usermanager.get_with_id(post.creator).name} <br>" +
-				" #{post.text}"
+			@post = @postmanager.get_with_id(params[:id])
+			slim :one_post
 		rescue Exception => e
-			e.message
+			@msg = e.message
+			slim :error
+		end
+	end
+
+	get '/posts/:id/edit' do
+		if(params[:id])
+			@post = @postmanager.get_with_id(params[:id])
+			slim :edit_post
+		else
+			@msg = 'Server did not recieve a post id'
+			slim :error
+		end
+	end
+
+	patch '/posts/:id' do
+		if(!session[:logged_in])
+			redirect '/login'
+		else
+			#text = params['text']
 		end
 	end
 end
+

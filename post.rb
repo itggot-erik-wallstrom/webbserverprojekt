@@ -10,4 +10,9 @@ class Post
 		@creation_date = creation_date
 		@modification_date = modification_date
 	end
+
+	def update(text)
+		@modification_date = DateTime.now.strftime('%Y-%m-%d %H:%M')
+		@text = text
+	end
 end
