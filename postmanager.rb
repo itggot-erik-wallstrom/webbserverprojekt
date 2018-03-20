@@ -125,4 +125,13 @@ class PostManager
 			result[0][2]
 		)
 	end
+
+	def update(post)
+		@db.execute(
+			'UPDATE posts SET text = ?, modification_date = ? WHERE id is ?',
+			post.text, 
+			post.modification_date, 
+			post.id
+		)
+	end
 end

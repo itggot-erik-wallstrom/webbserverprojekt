@@ -3,3 +3,11 @@
 	p style="display: inline;"#{post.creation_date} #{post.modification_date}
   		#{@usermanager.get_with_id(post.creator).name}
 	br
+
+br
+
+form action="/posts/new" method="get" style="display: inline;" 
+    button type="submit" Create a new
+
+form action="/dashboard" method="get" style="display: inline;" 
+	button type="submit" Go back

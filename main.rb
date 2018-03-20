@@ -1,5 +1,6 @@
 require_relative './usermanager.rb'
 require_relative './postmanager.rb'
+require_relative './editmanager.rb'
 
 class Main < Sinatra::Base
 	enable :sessions
@@ -8,11 +9,12 @@ class Main < Sinatra::Base
 		db = SQLite3::Database.open('db.sqlite')
 		@usermanager = UserManager.new(db)
 		@postmanager = PostManager.new(db)
+		@editmanager = EditManager.new(db)
 		super
 	end
 
 	get '/' do
-		redirect '/login'
+		slim :main
 	end
 
 	get '/login' do
@@ -143,12 +145,11 @@ class Main < Sinatra::Base
 	end
 
 	get '/posts/:id/edit' do
-		if(params[:id])
+		if(!session[:logged_in])
+			redirect '/login'
+		else
 			@post = @postmanager.get_with_id(params[:id])
 			slim :edit_post
-		else
-			@msg = 'Server did not recieve a post id'
-			slim :error
 		end
 	end
 
@@ -156,8 +157,22 @@ class Main < Sinatra::Base
 		if(!session[:logged_in])
 			redirect '/login'
 		else
-			#text = params['text']
+			text = params['text']
+			post_id = params[:id]
+			user_id = session[:logged_in]
+			post = @postmanager.get_with_id(post_id)
+
+			@editmanager.add(text, user_id, post)
+			post.update(text)
+			@postmanager.update(post)
+
+			redirect "/posts/#{post_id}"
 		end
+	end
+
+	get '/edits' do
+		@edits = @editmanager.get_all
+		slim :all_edits
 	end
 end
 

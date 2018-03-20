@@ -1,2 +1,7 @@
 - @users.each do |user|
-  p #{user.id} #{user.name} #{user.registration_date}
+	p style="display: inline;" #{user.id} #{user.name} #{user.registration_date}
+	br
+
+br
+form action="/dashboard" method="get"
+	button type="submit" Go back

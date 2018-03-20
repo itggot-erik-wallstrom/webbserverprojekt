@@ -1,7 +1,11 @@
 h2 ##{@post.id} #{@post.title}
-h6 #{@post.creation_date} #{@post.modification_date} 
-	#{@usermanager.get_with_id(@post.creator).name}
+h6 Created: #{@post.creation_date} 
+h6 Modified: #{@post.modification_date} 
+h6 Creator: #{@usermanager.get_with_id(@post.creator).name}
 p #{@post.text}
 
-form action="/posts/#{@post.id}/edit" method="get" 
+form action="/posts/#{@post.id}/edit" method="get" style="display: inline;"
 	button type="submit" Edit Post
+
+form action="/posts" method="get" style="display: inline;"
+	button type="submit" Go back

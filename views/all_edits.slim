@@ -1,0 +1,8 @@
+- @edits.each do |edit|
+	p style="display: inline;" #{edit.id} #{edit.date} #{edit.new_text}
+		#{edit.old_text} #{edit.user} #{edit.post}
+	br
+
+br
+form action="/dashboard" method="get"
+	button type="submit" Go back
