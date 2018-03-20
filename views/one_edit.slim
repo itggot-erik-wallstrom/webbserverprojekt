@@ -1,0 +1,13 @@
+h2 ##{@edit.id} #{@postmanager.get_with_id(@edit.post).title} 
+
+h6 Edited: #{@edit.date}
+h6 Editor: #{@usermanager.get_with_id(@edit.user).name} 
+
+h6 New text: 
+p #{@edit.new_text}
+
+h6 Old text: 
+p #{@edit.old_text}
+
+form action="/edits" method="get"
+	button type="submit" Go back

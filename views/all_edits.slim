@@ -1,6 +1,8 @@
 - @edits.each do |edit|
-	p style="display: inline;" #{edit.id} #{edit.date} #{edit.new_text}
-		#{edit.old_text} #{edit.user} #{edit.post}
+	a href="/edits/#{edit.id}" ##{edit.id} 
+		#{@postmanager.get_with_id(edit.post).title} 
+	p style="display: inline;" #{edit.date} 
+		#{@usermanager.get_with_id(edit.user).name} 
 	br
 
 br

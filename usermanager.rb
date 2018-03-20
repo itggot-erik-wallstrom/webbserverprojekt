@@ -72,7 +72,7 @@ class UserManager
 	def get_with_id(id)
 		result = find_with_id(id)
 		if(!result)
-			raise "User does not exist"
+			raise 'User does not exist'
 		end
 
 		User.new(result[0][0], result[0][1], result[0][2], result[0][3])
@@ -81,7 +81,7 @@ class UserManager
 	def get_with_name(name)
 		result = find_with_name(name)
 		if(!result)
-			raise "User does not exist"
+			raise 'User does not exist'
 		end
 
 		User.new(result[0][0], result[0][1], result[0][2], result[0][3])

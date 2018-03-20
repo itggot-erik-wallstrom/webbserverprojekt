@@ -5,7 +5,11 @@ h6 Creator: #{@usermanager.get_with_id(@post.creator).name}
 p #{@post.text}
 
 form action="/posts/#{@post.id}/edit" method="get" style="display: inline;"
-	button type="submit" Edit Post
+	button type="submit" Edit post
+
+form action="/edits" method="get" style="display: inline;"
+	input type="hidden" name="post_id" value="#{@post.id}"
+	button type="submit" View edits
 
 form action="/posts" method="get" style="display: inline;"
 	button type="submit" Go back

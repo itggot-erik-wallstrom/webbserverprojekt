@@ -44,6 +44,7 @@ class Main < Sinatra::Base
 
 	get '/dashboard' do
 		if(session[:logged_in])
+			@user_id = session[:logged_in]
 			slim :dashboard
 		else
 			redirect '/login'
@@ -71,7 +72,9 @@ class Main < Sinatra::Base
 
 		begin
 			@usermanager.add(username, password)
-			'User creation was successful' #TODO: FIX LAYOUT
+			@msg = 'User creation was successful'
+			@back = '/login'
+			slim :success
 		rescue Exception => e
 			@msg = e.message
 			slim :error
@@ -108,7 +111,9 @@ class Main < Sinatra::Base
 
 		begin
 			@postmanager.add(title, text, creator)
-			'Post creation was successful' #TODO: FIX LAYOUT
+			@msg = 'Post creation was successful'
+			@back = '/posts'
+			slim :success
 		rescue Exception => e
 			@msg = e.message
 			slim :error
@@ -171,8 +176,25 @@ class Main < Sinatra::Base
 	end
 
 	get '/edits' do
-		@edits = @editmanager.get_all
+		if(params['user_id'])
+			@edits = @editmanager.get_all_with_user(params['user_id'])
+		elsif(params['post_id'])
+			@edits = @editmanager.get_all_with_post(params['post_id'])
+		else
+			@edits = @editmanager.get_all
+		end
+
 		slim :all_edits
+	end
+
+	get '/edits/:id' do
+		begin 
+			@edit = @editmanager.get_with_id(params[:id])
+			slim :one_edit
+		rescue Exception => e
+			@msg = e.message
+			slim :error
+		end
 	end
 end
 

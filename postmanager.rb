@@ -97,7 +97,7 @@ class PostManager
 	def get_with_id(id)
 		result = find_with_id(id)
 		if(!result)
-			raise "Post does not exist"
+			raise 'Post does not exist'
 		end
 
 		Post.new(
@@ -113,7 +113,7 @@ class PostManager
 	def get_with_title(title)
 		result = find_with_title(title)
 		if(!result)
-			raise "Post does not exist"
+			raise 'Post does not exist'
 		end
 
 		Post.new(

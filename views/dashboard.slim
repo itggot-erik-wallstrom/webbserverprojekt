@@ -6,5 +6,19 @@ form action="/posts" method="get" style="display: inline;"
 form action="/users" method="get" style="display: inline;" 
     button type="submit" Users
 
-form action="/logout" method="post" style="display: inline;" 
+br
+br
+
+form action="/posts" method="get" style="display: inline;" 
+	input type="hidden" name="creator_id" value="#{@user_id}"
+    button type="submit" My posts
+
+form action="/edits" method="get" style="display: inline;" 
+	input type="hidden" name="user_id" value="#{@user_id}"
+    button type="submit" My edits
+
+br
+br
+
+form action="/logout" method="post"
     button type="submit" Log Out
