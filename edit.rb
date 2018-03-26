@@ -1,3 +1,4 @@
+# A representation of an Edit in the database
 class Edit
 	attr_reader :id, :date, :new_text, :old_text, :user, :post
 

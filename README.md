@@ -1,7 +1,7 @@
 # webbserverprojekt
 
-Forum med användare som kan registrera sig, skapa inlägg, kommentera och 
-ändra dem.
+Forum med användare som kan registrera sig och skapa inlägg. 
+Inläggen kan därefter ändras, och all ändringshistorik sparas.
 
 ## ER Schema
 

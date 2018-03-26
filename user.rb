@@ -1,3 +1,4 @@
+# A representation of a User in the database
 class User
 	attr_reader :id, :name, :password, :registration_date
 

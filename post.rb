@@ -1,3 +1,4 @@
+# A representation of a Post in the database
 class Post
 	attr_reader :id, :text, :title, :creator, :creation_date, 
 		:modification_date
@@ -11,6 +12,8 @@ class Post
 		@modification_date = modification_date
 	end
 
+	# Changes the text member
+	# @param text [String] the new text
 	def update(text)
 		@modification_date = DateTime.now.strftime('%Y-%m-%d %H:%M')
 		@text = text

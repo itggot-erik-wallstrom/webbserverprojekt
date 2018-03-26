@@ -2,6 +2,7 @@ require_relative './usermanager.rb'
 require_relative './postmanager.rb'
 require_relative './editmanager.rb'
 
+# Main class
 class Main < Sinatra::Base
 	enable :sessions
 
