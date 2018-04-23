@@ -1,9 +1,9 @@
 link href="main.css" rel="stylesheet" type="text/css"
 
-h2 ##{@edit.id} #{@postmanager.get_with_id(@edit.post).title} 
+h2 ##{@edit.id} #{@postmanager.get_with(id: @edit.post).title} 
 
 h6 Edited: #{@edit.date}
-h6 Editor: #{@usermanager.get_with_id(@edit.user).name} 
+h6 Editor: #{@usermanager.get_with(id: @edit.user).name} 
 
 h6 New text: 
 p #{@edit.new_text}

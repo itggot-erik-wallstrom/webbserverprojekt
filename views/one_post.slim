@@ -3,7 +3,7 @@ link href="main.css" rel="stylesheet" type="text/css"
 h2 ##{@post.id} #{@post.title}
 h6 Created: #{@post.creation_date} 
 h6 Modified: #{@post.modification_date} 
-h6 Creator: #{@usermanager.get_with_id(@post.creator).name}
+h6 Creator: #{@usermanager.get_with(id: @post.creator).name}
 p #{@post.text}
 
 form action="/posts/#{@post.id}/edit" method="get" style="display: inline;"

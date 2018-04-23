@@ -18,7 +18,9 @@ class Main < Sinatra::Base
 		if(!session[:logged_in])
 			if( request.path_info != '/login'     && 
 				request.path_info != '/users/new' && 
-				request.path_info != '/')
+				request.path_info != '/' 		  &&
+				(request.path_info != '/users' && 
+					request.request_method != 'POST'))
 
 				request.path_info = '/login'
 			end
@@ -38,7 +40,7 @@ class Main < Sinatra::Base
 		password = params['password']
 
 		begin
-			user = @usermanager.get_with_name(username)
+			user = @usermanager.get_with(name: username)
 			password_test = BCrypt::Password.new(user.password)
 
 			if(password_test == password)
@@ -96,7 +98,7 @@ class Main < Sinatra::Base
 
 	get '/users/:id' do
 		begin 
-			@user = @usermanager.get_with_id(params[:id])
+			@user = @usermanager.get_with(id: params[:id])
 			slim :one_user
 		rescue Exception => e
 			e.message
@@ -110,7 +112,7 @@ class Main < Sinatra::Base
 	post '/posts' do
 		title = params['title']
 		text = params['text']
-		creator = @usermanager.get_with_id(session[:logged_in]).id
+		creator = @usermanager.get_with(id: session[:logged_in]).id
 
 		begin
 			@postmanager.add(title, text, creator)
@@ -126,15 +128,17 @@ class Main < Sinatra::Base
 	get '/posts' do
 		if(params['creator_name'])
 			begin
-				@posts = @postmanager.get_all_with_creator(
-					@usermanager.get_with_name(params['creator_name']).id
+				@posts = @postmanager.get_all_with(
+					creator: @usermanager.get_with(
+						name: params['creator_name']
+					).id
 				)
 			rescue Exception => e
 				@msg =  e.message
 				return slim :error
 			end
 		elsif(params['creator_id'])
-			@posts = @postmanager.get_all_with_creator(params['creator_id'])
+			@posts = @postmanager.get_all_with(creator: params['creator_id'])
 		else
 			@posts = @postmanager.get_all
 		end
@@ -144,7 +148,7 @@ class Main < Sinatra::Base
 
 	get '/posts/:id' do
 		begin 
-			@post = @postmanager.get_with_id(params[:id])
+			@post = @postmanager.get_with(id: params[:id])
 			slim :one_post
 		rescue Exception => e
 			@msg = e.message
@@ -153,7 +157,7 @@ class Main < Sinatra::Base
 	end
 
 	get '/posts/:id/edit' do
-		@post = @postmanager.get_with_id(params[:id])
+		@post = @postmanager.get_with(id: params[:id])
 		slim :edit_post
 	end
 
@@ -161,7 +165,7 @@ class Main < Sinatra::Base
 		text = params['text']
 		post_id = params[:id]
 		user_id = session[:logged_in]
-		post = @postmanager.get_with_id(post_id)
+		post = @postmanager.get_with(id: post_id)
 
 		@editmanager.add(text, user_id, post)
 		post.update(text)
@@ -172,9 +176,9 @@ class Main < Sinatra::Base
 
 	get '/edits' do
 		if(params['user_id'])
-			@edits = @editmanager.get_all_with_user(params['user_id'])
+			@edits = @editmanager.get_all_with(user: params['user_id'])
 		elsif(params['post_id'])
-			@edits = @editmanager.get_all_with_post(params['post_id'])
+			@edits = @editmanager.get_all_with(post: params['post_id'])
 		else
 			@edits = @editmanager.get_all
 		end
@@ -184,7 +188,7 @@ class Main < Sinatra::Base
 
 	get '/edits/:id' do
 		begin 
-			@edit = @editmanager.get_with_id(params[:id])
+			@edit = @editmanager.get_with(id: params[:id])
 			slim :one_edit
 		rescue Exception => e
 			@msg = e.message

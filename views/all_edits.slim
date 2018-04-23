@@ -2,9 +2,9 @@ link href="main.css" rel="stylesheet" type="text/css"
 
 - @edits.each do |edit|
 	a href="/edits/#{edit.id}" ##{edit.id} 
-		#{@postmanager.get_with_id(edit.post).title} 
+		#{@postmanager.get_with(id: edit.post).title} 
 	p style="display: inline;" #{edit.date} 
-		#{@usermanager.get_with_id(edit.user).name} 
+		#{@usermanager.get_with(id: edit.user).name} 
 	br
 
 br
