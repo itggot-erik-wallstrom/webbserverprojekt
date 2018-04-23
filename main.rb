@@ -14,6 +14,17 @@ class Main < Sinatra::Base
 		super
 	end
 
+	before do
+		if(!session[:logged_in])
+			if( request.path_info != '/login'     && 
+				request.path_info != '/users/new' && 
+				request.path_info != '/')
+
+				request.path_info = '/login'
+			end
+		end
+	end
+
 	get '/' do
 		slim :main
 	end
@@ -44,12 +55,8 @@ class Main < Sinatra::Base
 	end
 
 	get '/dashboard' do
-		if(session[:logged_in])
-			@user_id = session[:logged_in]
-			slim :dashboard
-		else
-			redirect '/login'
-		end
+		@user_id = session[:logged_in]
+		slim :dashboard
 	end
 
 	post '/logout' do
@@ -103,12 +110,7 @@ class Main < Sinatra::Base
 	post '/posts' do
 		title = params['title']
 		text = params['text']
-
-		if(!session[:logged_in])
-			return redirect '/login'
-		else
-			creator = @usermanager.get_with_id(session[:logged_in]).id
-		end
+		creator = @usermanager.get_with_id(session[:logged_in]).id
 
 		begin
 			@postmanager.add(title, text, creator)
@@ -151,29 +153,21 @@ class Main < Sinatra::Base
 	end
 
 	get '/posts/:id/edit' do
-		if(!session[:logged_in])
-			redirect '/login'
-		else
-			@post = @postmanager.get_with_id(params[:id])
-			slim :edit_post
-		end
+		@post = @postmanager.get_with_id(params[:id])
+		slim :edit_post
 	end
 
 	patch '/posts/:id' do
-		if(!session[:logged_in])
-			redirect '/login'
-		else
-			text = params['text']
-			post_id = params[:id]
-			user_id = session[:logged_in]
-			post = @postmanager.get_with_id(post_id)
+		text = params['text']
+		post_id = params[:id]
+		user_id = session[:logged_in]
+		post = @postmanager.get_with_id(post_id)
 
-			@editmanager.add(text, user_id, post)
-			post.update(text)
-			@postmanager.update(post)
+		@editmanager.add(text, user_id, post)
+		post.update(text)
+		@postmanager.update(post)
 
-			redirect "/posts/#{post_id}"
-		end
+		redirect "/posts/#{post_id}"
 	end
 
 	get '/edits' do
