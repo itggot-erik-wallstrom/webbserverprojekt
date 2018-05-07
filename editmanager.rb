@@ -1,3 +1,4 @@
+require_relative './sqlitetypes.rb'
 require_relative './manager.rb'
 require_relative './edit.rb'
 require 'time'
@@ -6,22 +7,18 @@ require 'time'
 class EditManager < Manager
 	def initialize(db)
 		super(db, 'edits', Edit)
-	end
-
-	# Adds a new edit to the database
-	# @param text [String] the text 
-	# @param user [String] the user id
-	# @param post [Post] the post
-	def add(text, user, post)
-		date = DateTime.now.strftime('%Y-%m-%d %H:%M')
-		@db.execute(
-			'INSERT INTO edits (date, new_text, old_text, user, post)' +
-				' VALUES (?, ?, ?, ?, ?)', 
-			date, 
-			text,
-			post.text,
-			user,
-			post.id
-		)
+		@columns << {
+			name: 'id', 
+			type: SQLiteType::INTEGER, 
+			not_null: true, 
+			primary_key: true,
+			auto_increment: true,
+			unique: true
+		}
+		@columns << {name: 'date', type: SQLiteType::TEXT, not_null: true}
+		@columns << {name: 'new_text', type: SQLiteType::TEXT, not_null: true}
+		@columns << {name: 'old_text', type: SQLiteType::TEXT}
+		@columns << {name: 'user', type: SQLiteType::INTEGER, not_null: true}
+		@columns << {name: 'post', type: SQLiteType::INTEGER, not_null: true}
 	end
 end

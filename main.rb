@@ -1,6 +1,7 @@
 require_relative './usermanager.rb'
 require_relative './postmanager.rb'
 require_relative './editmanager.rb'
+require 'time'
 
 # Main class
 class Main < Sinatra::Base
@@ -81,7 +82,13 @@ class Main < Sinatra::Base
 		end
 
 		begin
-			@usermanager.add(username, password)
+			hash = BCrypt::Password.create(password)
+			date = DateTime.now.strftime('%Y-%m-%d %H:%M')
+			@usermanager.add(
+				name: username, 
+				password: hash, 
+				registration_date: date
+			)
 			@msg = 'User creation was successful'
 			@back = '/login'
 			slim :success
@@ -113,9 +120,15 @@ class Main < Sinatra::Base
 		title = params['title']
 		text = params['text']
 		creator = @usermanager.get_with(id: session[:logged_in]).id
+		creation_date = DateTime.now.strftime('%Y-%m-%d %H:%M')
 
 		begin
-			@postmanager.add(title, text, creator)
+			@postmanager.add(
+				title: title, 
+				text: text, 
+				creator: creator,
+				creation_date: creation_date
+			)
 			@msg = 'Post creation was successful'
 			@back = '/posts'
 			slim :success
@@ -167,7 +180,14 @@ class Main < Sinatra::Base
 		user_id = session[:logged_in]
 		post = @postmanager.get_with(id: post_id)
 
-		@editmanager.add(text, user_id, post)
+		date = DateTime.now.strftime('%Y-%m-%d %H:%M')
+		@editmanager.add(
+			date: date, 
+			new_text: text, 
+			old_text: post.text,
+			user: user_id,
+			post: post_id
+		)
 		post.update(text)
 		@postmanager.update(post)
 

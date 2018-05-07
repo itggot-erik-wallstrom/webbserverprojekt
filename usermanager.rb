@@ -1,29 +1,30 @@
+require_relative './sqlitetypes.rb'
 require_relative './manager.rb'
 require_relative './user.rb'
-require 'time'
 
 # Manages all users in the SQL database
 class UserManager < Manager
 	def initialize(db)
 		super(db, 'users', User)
-	end
-
-	# Adds a new user to the database
-	# @param username [String] the username
-	# @param password [String] the password
-	def add(username, password)
-		hash = BCrypt::Password.create(password)
-		if(exists_with(name: username))
-			raise 'Username already exists'
-		end
-
-		registration_date = DateTime.now.strftime('%Y-%m-%d %H:%M')
-		@db.execute(
-			'INSERT INTO users (name, password, registration_date)' +
-				' VALUES (?, ?, ?)', 
-			username, 
-			hash,
-			registration_date
-		)
+		@columns << {
+			name: 'id', 
+			type: SQLiteType::INTEGER,
+			not_null: true, 
+			primary_key: true,
+			auto_increment: true,
+			unique: true
+		}
+		@columns << {
+			name: 'name', 
+			type: SQLiteType::TEXT, 
+			not_null: true, 
+			unique: true
+		}
+		@columns << {name: 'password', type: SQLiteType::TEXT, not_null: true}
+		@columns << {
+			name: 'registration_date', 
+			type: SQLiteType::TEXT, 
+			not_null: true
+		}
 	end
 end

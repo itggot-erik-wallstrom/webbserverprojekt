@@ -1,0 +1,7 @@
+module SQLiteType
+	INTEGER = 'INTEGER'
+	TEXT = 'TEXT'
+	BLOB = 'BLOB'
+	REAL = 'REAL'
+	NUMERIC = 'NUMERIC'
+end

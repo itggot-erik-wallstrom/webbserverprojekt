@@ -4,6 +4,79 @@ class Manager
 		@db = db
 		@table = table
 		@item_class = item_class
+		@columns = []
+	end
+
+	# Creates a new table in the database
+	def create
+		sql = "CREATE TABLE `#{@table}` ("
+		@columns.each do |column|
+			sql += "`#{column[:name]}` #{column[:type]}"
+			if(column[:not_null])
+				sql += ' NOT NULL'
+			end
+
+			if(column[:primary_key])
+				sql += ' PRIMARY KEY'
+			end
+
+			if(column[:auto_increment])
+				sql += ' AUTOINCREMENT'
+			end
+
+			if(column[:unique])
+				sql += ' UNIQUE'
+			end
+			sql += ','
+		end
+		sql.chop! # Remove trailing ','
+		sql += ');'
+		p sql
+		@db.execute(sql)
+	end
+
+	# Check if column exists
+	# @param column [String] the column to check
+	# @return [Hash] found column if it exists, raises error if not
+	def check_column(column)
+		@columns.each do |test|
+			p test[:name], column
+			if(column == test[:name])
+				return test
+			end
+		end
+
+		raise "#{column} does not exist"
+	end
+
+	# Adds a new row to the table
+	# @param hash [Hash] all values that should be set
+	def add(hash)
+		arr = []
+		hash.each do |k, v|
+			column = check_column(k.to_s)
+			if(column[:unique])
+				if(exists_with({k => v}))
+					raise "#{k} #{v} already exists"
+				end
+			end
+			arr << [k, v]
+		end
+
+		sql = "INSERT INTO #{@table} ("
+		arr.each do |a|
+			sql += "#{a[0]},"
+		end
+
+		sql.chop! # Remove trailing ','
+		sql += ' VALUES ('
+		arr.each do |a|
+			sql += "#{a[1]},"
+		end
+
+		sql.chop! # Remove trailing ','
+		sql += ');'
+		@db.execute(sql)
 	end
 
 	# Check if the row exists
@@ -11,6 +84,7 @@ class Manager
 	# @return [Boolean] if the row exists or not
 	def exists_with(hash)
 		column = hash.keys.first
+		check_column(column.to_s)
 		value = hash[column]
 		result = @db.execute(
 			"SELECT * FROM #{@table} WHERE #{column.to_s} IS ?", 
@@ -29,6 +103,7 @@ class Manager
 	# @return [Boolean] nil if not found or the row
 	def find_with(hash)
 		column = hash.keys.first
+		check_column(column.to_s)
 		value = hash[column]
 		result = @db.execute(
 			"SELECT * FROM #{@table} WHERE #{column.to_s} IS ?", 
@@ -60,6 +135,7 @@ class Manager
 	# @return [Object[]] A list of all rows
 	def get_all_with(hash)
 		column = hash.keys.first
+		check_column(column.to_s)
 		value = hash[column]
 		result = @db.execute(
 			"SELECT * FROM #{@table} WHERE #{column.to_s} IS ?", 
@@ -79,6 +155,7 @@ class Manager
 	# @return [Object] The row
 	def get_with(hash)
 		column = hash.keys.first
+		check_column(column.to_s)
 		value = hash[column]
 
 		result = find_with(hash)

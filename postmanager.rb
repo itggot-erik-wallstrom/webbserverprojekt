@@ -1,3 +1,4 @@
+require_relative './sqlitetypes.rb'
 require_relative './manager'
 require_relative './post.rb'
 require 'time'
@@ -6,26 +7,28 @@ require 'time'
 class PostManager < Manager
 	def initialize(db)
 		super(db, 'posts', Post)
-	end
-
-	# Adds a new post to the database
-	# @param title [String] the title
-	# @param text [String] the text content
-	# @param creator [String] the user id of the creator
-	def add(title, text, creator)
-		if(exists_with(title: title))
-			raise 'Title already exists'
-		end
-
-		creation_date = DateTime.now.strftime('%Y-%m-%d %H:%M')
-		@db.execute(
-			'INSERT INTO posts (title, text, creator, creation_date)' +
-				' VALUES (?, ?, ?, ?)', 
-			title, 
-			text,
-			creator,
-			creation_date
-		)
+		@columns << {
+			name: 'id', 
+			type: SQLiteType::INTEGER, 
+			not_null: true, 
+			primary_key: true,
+			auto_increment: true,
+			unique: true
+		}
+		@columns << {
+			name: 'creation_date', 
+			type: SQLiteType::TEXT, 
+			not_null: true
+		}
+		@columns << {name: 'modification_date', type: SQLiteType::TEXT}
+		@columns << {name: 'text', type: SQLiteType::TEXT}
+		@columns << {
+			name: 'title', 
+			type: SQLiteType::TEXT, 
+			not_null: true, 
+			unique: true
+		}
+		@columns << {name: 'creator', type: SQLiteType::INTEGER}
 	end
 
 	# Change a post in the database
